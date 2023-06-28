@@ -1,0 +1,87 @@
+<mujoco>
+    <compiler angle="radian" coordinate="local" />
+    <visual>
+        <map fogstart="3" fogend="5" force="0.1" znear="0.1" />
+        <quality shadowsize="2048" offsamples="8" />
+        <global offwidth="800" offheight="800" />
+    </visual>
+    <option cone="elliptic" impratio="300" timestep="0.002" />
+    <size njmax="500" nconmax="200" />
+    <default class="main">
+        <mesh scale="0.001 0.001 0.001" />
+        <joint limited="true" damping="0.05" armature="0.005" margin="0.0" frictionloss="0.1" />
+        <default class="collision">
+            <geom group="3" />
+        </default>
+        <default class="visual">
+            <geom contype="0" conaffinity="0" group="0" />
+        </default>
+        <default class="finger">
+            <joint axis="1 0 0" range="0 1.5708" />
+            <default class="FFJ4">
+                <joint range="-0.349066 0.349066" />
+            </default>
+            <default class="FFJ3">
+                <joint frictionloss="0.001" damping="0.05" />
+            </default>
+            <default class="FFJ2">
+                <joint stiffness="0.0007486213205979859" springref="-66.235747870278" frictionloss="0.0008495541126336441" damping="0.04313482016233128" />
+            </default>
+            <default class="FFJ1">
+                <joint stiffness="0.0018126171188202356" springref="-73.62070699647471" frictionloss="0.001165706560744552" damping="0.0629917944004473" />
+            </default>
+            <default class="LFJ5">
+                <joint range="0 0.785398" />
+            </default>
+            <default class="LFJ4">
+                <joint range="-0.349066 0.349066" />
+            </default>
+            <default class="LFJ3">
+                <joint frictionloss="0.001" damping="0.05" />
+            </default>
+            <default class="LFJ2">
+                <joint stiffness="0.0007486213205979859" springref="-66.235747870278" frictionloss="0.0008495541126336441" damping="0.04313482016233128" />
+            </default>
+            <default class="LFJ1">
+                <joint stiffness="0.0018126171188202356" springref="-73.62070699647471" frictionloss="0.001165706560744552" damping="0.0629917944004473" />
+            </default>
+            <default class="MFJ4">
+                <joint range="-0.349066 0.349066" />
+            </default>
+            <default class="MFJ3">
+                <joint frictionloss="0.001" damping="0.05" />
+            </default>
+            <default class="MFJ2">
+                <joint stiffness="0.0007486213205979859" springref="-66.235747870278" frictionloss="0.0008495541126336441" damping="0.04313482016233128" />
+            </default>
+            <default class="MFJ1">
+                <joint stiffness="0.0018126171188202356" springref="-73.62070699647471" frictionloss="0.001165706560744552" damping="0.0629917944004473" />
+            </default>
+            <default class="RFJ4">
+                <joint range="-0.349066 0.349066" />
+            </default>
+            <default class="RFJ3">
+                <joint frictionloss="0.001" damping="0.05" />
+            </default>
+            <default class="RFJ2">
+                <joint stiffness="0.0007486213205979859" springref="-66.235747870278" frictionloss="0.0008495541126336441" damping="0.04313482016233128" />
+            </default>
+            <default class="RFJ1">
+                <joint stiffness="0.0018126171188202356" springref="-73.62070699647471" frictionloss="0.001165706560744552" damping="0.0629917944004473" />
+            </default>
+        </default>
+        <default class="thumb">
+            <joint frictionloss="0.001" damping="0.05" />
+            <default class="THJ5">
+            </default>
+            <default class="THJ4">
+            </default>
+            <default class="THJ3">
+            </default>
+            <default class="THJ2">
+            </default>
+            <default class="THJ1">
+            </default>
+        </default>
+    </default>
+</mujoco>
