@@ -1,4 +1,3 @@
-import re
 import rospy
 import numpy as np
 import time
@@ -15,7 +14,7 @@ joint_list = ['FFJ1', 'FFJ2', 'FFJ3', 'FFJ4', 'LFJ1', 'LFJ2', 'LFJ3', 'LFJ4', 'L
 
 #CONSTANT DEFINITIONS
 JOINT_TYPE = 'FFJ1'
-JOINT_CAPTION = 'FFJ1'
+JOINT_CAPTION = 'FJ1'
 NUM_ITERACTIONS = 0   #if == 0 -> Check the mse from joint / finger / global hand
 MAO_REAL_PRESENT = True
 PARAM_PERCENT = 0.7
@@ -139,10 +138,10 @@ if __name__ == "__main__":
 
     RosNode.executeTrajectory(str, 'hand_stretched')
     
-    #numerics_params = [] 
-    #numerics_params += ObtainParam.getSingleParam_shared_options('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', 'FFJ1')
-    #numerics_params += ObtainParam.getSingleParam_shared_options('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', 'FFJ2')
-    #numerics_params += ObtainParam.getSingleParam_shared_options('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', 'FFJ3')
+    numerics_params = []
+    numerics_params += ObtainParam.getSingleParam_shared_options('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', 'FFJ1')
+    numerics_params += ObtainParam.getSingleParam_shared_options('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', 'FFJ2')
+    numerics_params += ObtainParam.getSingleParam_shared_options('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', 'FFJ3')
 
     #print(numerics_params)
     #best_parameters = numerics_params
@@ -160,8 +159,8 @@ if __name__ == "__main__":
     #Reset hand position
     RosNode.executeTrajectory(str, 'hand_stretched')
 
-    real_positions, n_ints, real_timestamps=csv_reader.csvReader('_'+ TRAJECTORY_NAME +'_real_movement.csv','r') #NORMAL CASE
-    #real_positions, n_ints, real_timestamps=csv_reader.csvReader('_wear_hand_closing_real_movement.csv','r') #CASE AFTER WEAR
+    real_positions, n_ints, real_timestamps=csv_reader.csvReader('_'+ TRAJECTORY_NAME +'_real_movement.csv','r') #Normal wear case
+
     real_timestamp_column = [row-real_timestamps[0] for row in real_timestamps]
     real_position_column = [row[joint_list.index(JOINT_TYPE)] for row in real_positions]
     points_real = np.array([(x, y) for x, y in zip(real_timestamp_column, real_position_column)])
@@ -179,161 +178,156 @@ if __name__ == "__main__":
     #print(f'Global error: {best_global_error}')
     
 
-    #Define the bounds for the params optimisation
-    #bounds = getBounds(numerics_params, PARAM_PERCENT)
+    # Define the bounds for the params optimisation
+    bounds = getBounds(numerics_params, PARAM_PERCENT)
 
-    #lower_bound_range = MEDIAN_ANGLE - 0.10 * MEDIAN_ANGLE
-    #upper_bound_range = MEDIAN_ANGLE + 0.10 * MEDIAN_ANGLE
+    lower_bound_range = MEDIAN_ANGLE - 0.05 * MEDIAN_ANGLE
+    upper_bound_range = MEDIAN_ANGLE + 0.05 * MEDIAN_ANGLE
 
-    #parameter_ranges = list(zip(*bounds))
+    parameter_ranges = list(zip(*bounds))
 
-    #Create file with iteracions
-    #writeOptiResults('w', -1, best_error, best_error, best_global_error, best_global_error)
+    # Create file with iteracions
+    writeOptiResults('w', -1, best_error, best_error, best_global_error, best_global_error)
 
-    # for i in range(NUM_ITERACTIONS):
-    #     result_array = []
+    for i in range(NUM_ITERACTIONS):
+        result_array = []
 
-    #     points_sim = []
-    #     # Generate a set of random parameters
-    #     parameters = getRandomParams(bounds)
+        points_sim = []
+        # Generate a set of random parameters
+        parameters = getRandomParams(bounds)
 
-    #     #Used for inly FFJ1 & FFJ2 without range
-    #     #parameters_1 = parameters[:4] 
-    #     #parameters_2 = parameters[4:]
+        #Used for inly FFJ1 & FFJ2 without range
+        #parameters_1 = parameters[:4] 
+        #parameters_2 = parameters[4:]
 
-    #     #Used for inly FFJ1 & FFJ2 & FFJ3 with range
-    #     parameters_1 = parameters[:6] 
-    #     parameters_2 = parameters[6:12]
-    #     parameters_3 = parameters[12:]
+        #Used for inly FFJ1 & FFJ2 & FFJ3 with range
+        parameters_1 = parameters[:6] 
+        parameters_2 = parameters[6:12]
+        parameters_3 = parameters[12:]
 
-    #         #Update only range because of the more narrow range of values (with actual significance)
-    #     parameters_1[5] =random.uniform(lower_bound_range, upper_bound_range)
-    #     parameters[5] = parameters_1[5]
-    #     parameters_2[5] = random.uniform(lower_bound_range, upper_bound_range)
-    #     parameters[11] = parameters_2[5]
-    #     parameters_3[5] = random.uniform(lower_bound_range, upper_bound_range)
-    #     parameters[17] = parameters_3[5]
+            #Update only range because of the more narrow range of values (with actual significance)
+        parameters_1[5] =random.uniform(lower_bound_range, upper_bound_range)
+        parameters[5] = parameters_1[5]
+        parameters_2[5] = random.uniform(lower_bound_range, upper_bound_range)
+        parameters[11] = parameters_2[5]
+        parameters_3[5] = random.uniform(lower_bound_range, upper_bound_range)
+        parameters[17] = parameters_3[5]
 
-    #     # print('AQUIIIII')
-    #     # print(parameters_1[5])
-    #     # print(f'COISAS:{parameters}')
-    #     # print(parameters_3[5])
+        #ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'FFJ1')
+        #ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'FFJ2')
 
-    #     #ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'FFJ1')
-    #     #ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'FFJ2')
+        ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'FFJ1')
+        ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'FFJ2')
+        ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_3, 'FFJ3')
 
-    #     # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'FFJ1')
-    #     # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'FFJ2')
-    #     # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_3, 'FFJ3')
+        ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'LFJ1')
+        ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'LFJ2')
+        ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_3, 'LFJ3')
 
-    #     # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'LFJ1')
-    #     # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'LFJ2')
-    #     # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_3, 'LFJ3')
+        ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'MFJ1')
+        ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'MFJ2')
+        ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_3, 'MFJ3')
 
-    #     # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'MFJ1')
-    #     # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'MFJ2')
-    #     # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_3, 'MFJ3')
-
-    #     # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'RFJ1')
-    #     # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'RFJ2')
-    #     # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_3, 'RFJ3')
-    #     #ObtainParam.setParam_shared_options('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters)
+        ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'RFJ1')
+        ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'RFJ2')
+        ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_3, 'RFJ3')
+        ObtainParam.setParam_shared_options('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters)
         
-    #     #Publish the signal to upodate mujoco model
-    #     _reload_verification=True
-    #     reload_pub.publish(reload_msg)
+        #Publish the signal to upodate mujoco model
+        _reload_verification=True
+        reload_pub.publish(reload_msg)
 
-    #     while(_reload_verification): #Pensar em colocar em threads, mais giro (maybe)
-    #         1
+        while(_reload_verification): #Pensar em colocar em threads, mais giro (maybe)
+            1
   
-    #     #Simulate the trajectory the trajectory
-    #     positions, n_iterations, timestamps = RosNode.simulateTrajectory(str, TRAJECTORY_NAME, index)
+        #Simulate the trajectory the trajectory
+        positions, n_iterations, timestamps = RosNode.simulateTrajectory(str, TRAJECTORY_NAME, index)
         
-    #     if len(positions) == 0:
-    #         i-=1
-    #         print(f'ERROR OCURRED ON: {i} and index number: {index}')
-    #         continue
+        if len(positions) == 0:
+            i-=1
+            print(f'ERROR OCURRED ON: {i} and index number: {index}')
+            continue
         
-    #     #print(f'Concluded movement on main program with: {positions} positions')
-    #     position_column = [row[joint_list.index(JOINT_TYPE)] for row in positions]
-    #     all_pos.append(position_column)
+        #print(f'Concluded movement on main program with: {positions} positions')
+        position_column = [row[joint_list.index(JOINT_TYPE)] for row in positions]
+        all_pos.append(position_column)
 
-    #     timestamp_column = [row-timestamps[0] for row in timestamps]
-    #     all_timestamps.append(timestamp_column)
+        timestamp_column = [row-timestamps[0] for row in timestamps]
+        all_timestamps.append(timestamp_column)
 
-    #     points_sim = np.array([(x, y) for x, y in zip(timestamp_column, position_column)])
+        points_sim = np.array([(x, y) for x, y in zip(timestamp_column, position_column)])
         
-    #     #Filter the simulation array -> get similar timestamps from real hand
-    #     result_array = np.array(filterArray(points_sim, points_real))
+        #Filter the simulation array -> get similar timestamps from real hand
+        result_array = np.array(filterArray(points_sim, points_real))
         
-    #     # Evaluate the error for the current set of parameters
-    #     error = getMSEfromJoint(positions, timestamp_column, real_positions, real_timestamp_column, JOINT_TYPE[:-1])
-    #     print(f'\nError: {error}')
+        # Evaluate the error for the current set of parameters
+        error = getMSEfromJoint(positions, timestamp_column, real_positions, real_timestamp_column, JOINT_TYPE[:-1])
+        print(f'\nError: {error}')
         
-    #     global_error = getGlobalMSE(positions, timestamp_column, real_positions, real_timestamp_column)
-    #     print(f'\nGlobal error: {global_error}')
+        global_error = getGlobalMSE(positions, timestamp_column, real_positions, real_timestamp_column)
+        print(f'\nGlobal error: {global_error}')
 
-    #     #Reset hand position
-    #     RosNode.executeTrajectory(str, 'hand_stretched')
+        #Reset hand position
+        RosNode.executeTrajectory(str, 'hand_stretched')
         
-    #     # Update the best set of parameters seen so far
-    #     if error < best_error:
-    #         best_parameters = parameters
-    #         best_error = error
-    #         best_global_error = global_error
+        # Update the best set of parameters seen so far
+        if error < best_error:
+            best_parameters = parameters
+            best_error = error
+            best_global_error = global_error
 
-    #     if (index-1)%10 == 0:
-    #         print(best_error)
+        if (index-1)%10 == 0:
+            print(best_error)
         
-    #     writeOptiResults('a',index, error, best_error, global_error, best_global_error)
-    #     print('\nInteraction number: {}\n'.format(index))
-    #     index+=1
+        writeOptiResults('a',index, error, best_error, global_error, best_global_error)
+        print('\nInteraction number: {}\n'.format(index))
+        index+=1
 
-    # #Set the param in the xml file with the best params
+    #Set the param in the xml file with the best params
 
-    # #Used for inly FFJ1 & FFJ2 without range
-    # #parameters_1 = best_parameters[:4]
-    # #parameters_2 = best_parameters[4:]
+    #Used for inly FFJ1 & FFJ2 without range
+    #parameters_1 = best_parameters[:4]
+    #parameters_2 = best_parameters[4:]
     
-    # #Used for inly FFJ1 & FFJ2 & FFJ3 with range
-    # # parameters_1 = best_parameters[:6] 
-    # # parameters_2 = best_parameters[6:12]
-    # # parameters_3 = best_parameters[12:]
+    #Used for inly FFJ1 & FFJ2 & FFJ3 with range
+    parameters_1 = best_parameters[:6] 
+    parameters_2 = best_parameters[6:12]
+    parameters_3 = best_parameters[12:]
     
-    # #ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'FFJ1')
-    # #ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'FFJ2')
+    #ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'FFJ1')
+    #ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'FFJ2')
 
-    # # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'FFJ1')
-    # # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'FFJ2')
-    # # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_3, 'FFJ3')
+    ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'FFJ1')
+    ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'FFJ2')
+    ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_3, 'FFJ3')
 
-    # # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'LFJ1')
-    # # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'LFJ2')
-    # # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_3, 'LFJ3')
+    ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'LFJ1')
+    ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'LFJ2')
+    ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_3, 'LFJ3')
 
-    # # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'MFJ1')
-    # # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'MFJ2')
-    # # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_3, 'MFJ3')
+    ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'MFJ1')
+    ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'MFJ2')
+    ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_3, 'MFJ3')
 
-    # # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'RFJ1')
-    # # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'RFJ2')
-    # # ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_3, 'RFJ3')
-    # #ObtainParam.setParam_shared_options('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', best_parameters)
+    ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_1, 'RFJ1')
+    ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_2, 'RFJ2')
+    ObtainParam.setSingleParam_shared_options_joint_parameters('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', parameters_3, 'RFJ3')
+    ObtainParam.setParam_shared_options('projects/shadow_robot/base/src/sr_common/sr_description/mujoco_models/shared_options.xml', best_parameters)
     
-    # #Send signal to Update the xml file with the best params
-    # _reload_verification=True
-    # reload_pub.publish(reload_msg)
+    #Send signal to Update the xml file with the best params
+    _reload_verification=True
+    reload_pub.publish(reload_msg)
 
-    # #Why not (onjetivo de dar reset á posição da mao com os melhores parametros)
-    # RosNode.executeTrajectory(str, 'hand_stretched')
+    #Why not (onjetivo de dar reset á posição da mao com os melhores parametros)
+    RosNode.executeTrajectory(str, 'hand_stretched')
 
     print(f'Best median mse finger error: {best_error}')
     print(f'Global hand median mse error: {getGlobalMSE(positions, timestamp_column, real_positions, real_timestamp_column)}')
     
-    #plot interactions
+    #plot all simulation points
     # for i in range(index):
     #     plt.scatter(all_timestamps[i-1], all_pos[i-1], s=4)
-        
+
     plt.xlabel('Time (ns)', fontsize=16)
     plt.ylabel('Angle (rad)', fontsize=16)
     plt.title(JOINT_CAPTION, fontsize=16)
@@ -341,8 +335,7 @@ if __name__ == "__main__":
     plt.yticks(fontsize=13)
 
     if MAO_REAL_PRESENT:
-        real_positions, n_ints, real_timestamps=csv_reader.csvReader('_' + TRAJECTORY_NAME + '_real_movement.csv','r') #Normal index/hand
-        #real_positions, n_ints, real_timestamps=csv_reader.csvReader('_wear_hand_closing_real_movement.csv','r') #After wear
+        real_positions, n_ints, real_timestamps=csv_reader.csvReader('_' + TRAJECTORY_NAME + '_real_movement.csv','r') #Normal wear case
         
         real_timestamp_column = [row-real_timestamps[0] for row in real_timestamps]
         real_position_column = [row[joint_list.index(JOINT_TYPE)] for row in real_positions]
@@ -350,34 +343,7 @@ if __name__ == "__main__":
         plt.scatter(real_timestamp_column, real_position_column, s=6, color='red')
 
     plt.scatter( result_array[:, 0], result_array[:, 1], s=6, color = 'green')
-    plt.ylim(-0.1,1.74)
+    #plt.ylim(-0.1,1.74)
     end_time = time.time()
     print("\nTime taken:", end_time - start_time, "seconds")
     plt.show()
-
-""" Curve_fit (8º gradient)
-    if MAO_REAL_PRESENT:
-        real_positions, n_ints, real_timestamps=csv_reader.csvReader('_index_closing_real_movement.csv','r')
-        real_timestamp_column = [row-real_timestamps[0] for row in real_timestamps]
-        real_position_column = [row[joint_list.index(JOINT_TYPE)] for row in real_positions]
-
-        if False:
-            print('\nTimestamp: ') 
-            print(real_timestamp_column)
-            print('\nPosição: ')
-            print(real_position_column)
-
-            print('\n\n\n Timestamp simulação: ')
-            print(all_timestamps[0])
-            print('\n\n\n posição simulação: ')
-            print(all_pos[0])
-
-        plt.scatter(real_timestamp_column, real_position_column, s=4, color='red')
-
-        coeff, _ = curve_fit(poly_func, all_timestamps[0], all_pos[0])
-        print(coeff)
-        x_vals = np.linspace(0, all_timestamps[0][-1], 10000)
-        y_vals = poly_func(x_vals, *coeff)
-    
-        plt.plot(x_vals, y_vals)
-"""
